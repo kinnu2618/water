@@ -8,7 +8,7 @@ from streamlit_option_menu import option_menu
 st.set_page_config(page_title="ML ASSIST", layout="wide", page_icon="🫡")
 
 # Load the model
-model_path = 'D:/projects/water/water_model.sav'
+model_path = 'water_model.sav'
 water_model = pickle.load(open(model_path, 'rb'))
 
 # Sidebar navigation
