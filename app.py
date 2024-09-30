@@ -8,7 +8,7 @@ from streamlit_option_menu import option_menu
 st.set_page_config(page_title="Water Quality Assistant", layout="wide", page_icon="💧")
 
 # Load the model
-model_path = 'water_model.sav'
+model_path = 'D:/projects/water/water_model.sav'
 water_model = pickle.load(open(model_path, 'rb'))
 
 # Sidebar navigation
@@ -20,80 +20,66 @@ with st.sidebar:
         icons=['droplet'],
         default_index=0)
 
-# Water Potability Prediction
+# Water Potability Prediction Page
 if selected == 'Water Potability Prediction':
 
     # Page title
     st.title('Water Potability Prediction')
 
-    # Getting user input
+    # Getting user input for water quality features
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        ph = st.text_input('pH Value')
+        pH = st.text_input('pH Value')
 
     with col2:
-        Hardness = st.text_input('Hardness')
+        Hardness = st.text_input('Hardness (mg/L)')
 
     with col3:
-        Solids = st.text_input('Solids')
+        Solids = st.text_input('Solids (ppm)')
 
     with col1:
-        Chloramines = st.text_input('Chloramines')
+        Chloramines = st.text_input('Chloramines (ppm)')
 
     with col2:
-        Sulfate = st.text_input('Sulfate')
+        Sulfate = st.text_input('Sulfate (mg/L)')
 
     with col3:
-        Conductivity = st.text_input('Conductivity')
+        Conductivity = st.text_input('Conductivity (µS/cm)')
 
     with col1:
-        Organic_carbon = st.text_input('Organic Carbon')
+        Organic_carbon = st.text_input('Organic Carbon (ppm)')
 
     with col2:
-        Trihalomethanes = st.text_input('Trihalomethanes')
+        Trihalomethanes = st.text_input('Trihalomethanes (µg/L)')
 
     with col3:
-        Turbidity = st.text_input('Turbidity')
+        Turbidity = st.text_input('Turbidity (NTU)')
 
-    # Prediction result
-    water_quality = ''
+    # Code for Prediction
+    water_diagnosis = ''
 
-    # Create a button for prediction
-    if st.button('Water Potability Test Result'):
+    # Creating a button for Prediction
+    if st.button('Check Water Potability'):
 
-        # Exception handling for missing inputs
-        try:
-            # Ensure all inputs are provided
-            if not all([ph, Hardness, Solids, Chloramines, Sulfate, Conductivity, Organic_carbon, Trihalomethanes, Turbidity]):
-                raise ValueError("Please enter all values.")
+        # Collect user input and convert to float
+        user_input = [pH, Hardness, Solids, Chloramines, Sulfate,
+                      Conductivity, Organic_carbon, Trihalomethanes, Turbidity]
+        user_input = [float(x) for x in user_input]
 
-            # Convert inputs to float and store in a list
-            user_input = [float(ph), float(Hardness), float(Solids), float(Chloramines), float(Sulfate),
-                          float(Conductivity), float(Organic_carbon), float(Trihalomethanes), float(Turbidity)]
+        # Change the input data to a numpy array
+        input_data_as_numpy_array = np.asarray(user_input)
 
-            # Convert to numpy array and reshape for model input
-            input_data_as_numpy_array = np.asarray(user_input).reshape(1, -1)
+        # Reshape the array as we are predicting for one instance
+        input_data_reshaped = input_data_as_numpy_array.reshape(1, -1)
 
-            # Prediction
-            prediction = water_model.predict(input_data_as_numpy_array)
+        # Make prediction
+        water_prediction = water_model.predict(input_data_reshaped)
 
-            # Result interpretation
-            if prediction[0] == 0:
-                water_quality = 'Unsafe Drinking Water!'
+        # Display the result
+        if water_prediction[0] == 0:
+            water_diagnosis = 'Unsafe Drinking Water!'
+        else:
+            water_diagnosis = 'Safe Drinking Water!'
 
-                # Advice when water is unsafe
-                st.warning("""
-                The water is unsafe for drinking! Here's what you can do:
-                - **Boil the water**: Boiling water kills harmful bacteria, viruses, and parasites.
-                - **Use a water purifier**: Consider using a purifier with UV, RO, or activated carbon filtration.
-                - **Add chlorine or iodine tablets**: These chemicals can help purify the water and make it safe to drink.
-                - **Avoid drinking untreated water**: Unsafe water can cause diseases such as diarrhea, cholera, and typhoid.
-                """)
-            else:
-                water_quality = 'Safe Drinking Water!'
-
-        except ValueError as e:
-            st.error(f"Error: {e}")
-
-    st.success(water_quality)
+    st.success(water_diagnosis)
