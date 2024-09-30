@@ -5,3 +5,4 @@ seaborn
 scikit-learn
 xgboost
 streamlit
+streamlit_option_menu
